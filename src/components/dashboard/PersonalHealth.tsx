@@ -39,10 +39,10 @@ export function PersonalHealth() {
           </div>
         </div>
 
-        <div className="glass grid grid-cols-3 gap-4 rounded-2xl p-6 lg:col-span-2">
+        <div className="glass grid grid-cols-3 items-center gap-2 rounded-2xl p-4 sm:gap-4 sm:p-6 lg:col-span-2">
           <GaugeRing value={68} label="Hydration" sub="2.4L / 3.5L" color="oklch(0.78 0.16 195)" />
           <GaugeRing value={42} label="Fatigue" sub="Moderate" color="oklch(0.85 0.22 150)" />
-          <GaugeRing value={73} label="Sleep Quality" sub="7.2h last night" color="oklch(0.72 0.18 240)" />
+          <GaugeRing value={73} label="Sleep" sub="7.2h" color="oklch(0.72 0.18 240)" />
         </div>
       </div>
 
