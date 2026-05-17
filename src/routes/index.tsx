@@ -19,13 +19,13 @@ function Index() {
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 grid-bg opacity-40" />
         <div className="absolute -top-40 left-1/2 h-[600px] w-[900px] -translate-x-1/2 rounded-full bg-primary/20 blur-[140px]" />
-        <div className="relative mx-auto grid max-w-6xl gap-12 px-4 py-20 md:grid-cols-2 md:items-center md:py-28">
+        <div className="relative mx-auto grid max-w-6xl gap-12 px-4 py-16 md:grid-cols-2 md:items-center md:py-28">
           <div className="animate-fade-up">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-muted-foreground">
               <Sparkles className="h-3.5 w-3.5 text-primary" />
               AI for Agriculture · Health · Climate
             </div>
-            <h1 className="mt-5 font-display text-5xl font-semibold leading-[1.05] tracking-tight md:text-6xl">
+            <h1 className="mt-5 font-display text-4xl font-semibold leading-[1.08] tracking-tight sm:text-5xl md:text-6xl">
               Protecting both the <span className="text-gradient">farmer</span> and the <span className="text-gradient">farm</span>.
             </h1>
             <p className="mt-5 max-w-lg text-base text-muted-foreground md:text-lg">
@@ -40,15 +40,15 @@ function Index() {
                 Explore Features
               </Link>
             </div>
-            <div className="mt-10 grid max-w-md grid-cols-3 gap-4 text-center">
+            <div className="mt-10 grid max-w-md grid-cols-3 gap-3 text-center sm:gap-4">
               {[
                 { k: "12k+", v: "Farmers" },
                 { k: "98%", v: "Disease accuracy" },
                 { k: "24/7", v: "AI assistant" },
               ].map((s) => (
                 <div key={s.v} className="rounded-xl bg-white/5 p-3">
-                  <p className="font-display text-xl text-gradient">{s.k}</p>
-                  <p className="text-xs text-muted-foreground">{s.v}</p>
+                  <p className="font-display text-lg text-gradient sm:text-xl">{s.k}</p>
+                  <p className="text-[11px] text-muted-foreground sm:text-xs">{s.v}</p>
                 </div>
               ))}
             </div>
@@ -57,17 +57,17 @@ function Index() {
           <div className="relative animate-fade-up">
             <div className="absolute -inset-6 rounded-[2rem] bg-gradient-to-tr from-primary/30 via-secondary/20 to-accent/30 blur-2xl" />
             <div className="relative overflow-hidden rounded-[2rem] border border-white/10 glow-green">
-              <img src={hero} alt="AI agriculture visualization" width={1536} height={1024} className="h-[420px] w-full object-cover" />
+              <img src={hero} alt="AI agriculture visualization" width={1536} height={1024} className="h-[280px] w-full object-cover sm:h-[360px] md:h-[420px]" />
             </div>
-            <div className="glass absolute -bottom-6 -left-6 flex items-center gap-3 rounded-2xl p-3 animate-float">
-              <span className="grid h-9 w-9 place-items-center rounded-xl bg-cool"><Brain className="h-4 w-4 text-primary-foreground" /></span>
+            <div className="glass-solid absolute bottom-3 left-3 flex items-center gap-3 rounded-2xl p-3 animate-float md:-bottom-6 md:-left-6">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-cool"><Brain className="h-4 w-4 text-primary-foreground" /></span>
               <div className="text-sm">
                 <p className="font-medium">AI Insight</p>
                 <p className="text-xs text-muted-foreground">Soil moisture optimal</p>
               </div>
             </div>
-            <div className="glass absolute -right-4 top-10 flex items-center gap-3 rounded-2xl p-3 animate-float" style={{ animationDelay: "1.5s" }}>
-              <span className="grid h-9 w-9 place-items-center rounded-xl bg-neon"><HeartPulse className="h-4 w-4 text-primary-foreground" /></span>
+            <div className="glass-solid absolute right-3 top-3 flex items-center gap-3 rounded-2xl p-3 animate-float md:-right-4 md:top-10" style={{ animationDelay: "1.5s" }}>
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-neon"><HeartPulse className="h-4 w-4 text-primary-foreground" /></span>
               <div className="text-sm">
                 <p className="font-medium">Heart 72bpm</p>
                 <p className="text-xs text-muted-foreground">Healthy zone</p>
