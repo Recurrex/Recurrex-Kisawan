@@ -1,13 +1,17 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import { Leaf } from "lucide-react";
 
-const links = [
+type NavLink =
+  | { to: "/" | "/features" | "/dashboard" | "/about"; label: string; href?: undefined }
+  | { href: string; label: string; to?: undefined };
+
+const links: NavLink[] = [
   { to: "/", label: "Home" },
   { to: "/features", label: "Features" },
   { to: "/dashboard", label: "Dashboard" },
   { to: "/about", label: "About" },
-  { to: "/contact", label: "Contact" },
-] as const;
+  { href: "mailto:recurrex.ofc@gmail.com", label: "Contact" },
+];
 
 export function Navbar() {
   const { pathname } = useLocation();
@@ -25,19 +29,18 @@ export function Navbar() {
           </Link>
           <ul className="hidden items-center gap-1 md:flex">
             {links.map((l) => {
-              const active = pathname === l.to || (l.to !== "/" && pathname.startsWith(l.to));
+              const key = l.to ?? l.href!;
+              const active = l.to && (pathname === l.to || (l.to !== "/" && pathname.startsWith(l.to)));
+              const cls = `rounded-full px-4 py-2 text-sm transition-colors ${
+                active ? "bg-white/10 text-foreground" : "text-muted-foreground hover:text-foreground"
+              }`;
               return (
-                <li key={l.to}>
-                  <Link
-                    to={l.to}
-                    className={`rounded-full px-4 py-2 text-sm transition-colors ${
-                      active
-                        ? "bg-white/10 text-foreground"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    {l.label}
-                  </Link>
+                <li key={key}>
+                  {l.to ? (
+                    <Link to={l.to} className={cls}>{l.label}</Link>
+                  ) : (
+                    <a href={l.href} className={cls}>{l.label}</a>
+                  )}
                 </li>
               );
             })}
