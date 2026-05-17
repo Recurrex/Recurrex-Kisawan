@@ -1,6 +1,7 @@
-import { Link, useLocation } from "@tanstack/react-router";
-import { Leaf, Menu, X } from "lucide-react";
+import { Link, useLocation, useNavigate } from "@tanstack/react-router";
+import { Leaf, LogOut, Menu, User, X } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/lib/auth-context";
 
 type NavLink =
   | { to: "/" | "/features" | "/dashboard" | "/about"; label: string; href?: undefined }
@@ -16,7 +17,24 @@ const links: NavLink[] = [
 
 export function Navbar() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const { user, profile, signOut } = useAuth();
   const [open, setOpen] = useState(false);
+
+  const displayName = profile?.full_name?.trim() || user?.email?.split("@")[0] || "";
+  const initials = displayName
+    .split(" ")
+    .map((s) => s[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("")
+    .toUpperCase() || "U";
+
+  async function handleSignOut() {
+    await signOut();
+    setOpen(false);
+    navigate({ to: "/" });
+  }
 
   return (
     <header className="fixed top-0 inset-x-0 z-40">
@@ -51,12 +69,40 @@ export function Navbar() {
           </ul>
 
           <div className="flex items-center gap-2">
-            <Link
-              to="/dashboard"
-              className="hidden rounded-full bg-neon px-4 py-2 text-sm font-medium text-primary-foreground transition-transform hover:scale-105 md:inline-block"
-            >
-              Launch
-            </Link>
+            {user ? (
+              <div className="hidden items-center gap-2 md:flex">
+                <Link
+                  to="/dashboard"
+                  className="flex items-center gap-2 rounded-full bg-white/5 px-2 py-1.5 pr-3 text-sm hover:bg-white/10"
+                  title={displayName}
+                >
+                  <span className="grid h-7 w-7 place-items-center rounded-full bg-neon text-xs font-semibold text-primary-foreground">
+                    {initials}
+                  </span>
+                  <span className="max-w-[120px] truncate">{displayName.split(" ")[0]}</span>
+                </Link>
+                <button
+                  onClick={handleSignOut}
+                  aria-label="Sign out"
+                  className="grid h-9 w-9 place-items-center rounded-full bg-white/5 text-muted-foreground hover:bg-white/10 hover:text-foreground"
+                >
+                  <LogOut className="h-4 w-4" />
+                </button>
+              </div>
+            ) : (
+              <div className="hidden items-center gap-2 md:flex">
+                <Link to="/login" className="rounded-full px-3 py-2 text-sm text-muted-foreground hover:text-foreground">
+                  Log in
+                </Link>
+                <Link
+                  to="/signup"
+                  className="rounded-full bg-neon px-4 py-2 text-sm font-medium text-primary-foreground transition-transform hover:scale-105"
+                >
+                  Sign up
+                </Link>
+              </div>
+            )}
+
             <button
               type="button"
               onClick={() => setOpen((o) => !o)}
@@ -87,14 +133,43 @@ export function Navbar() {
                   </li>
                 );
               })}
-              <li className="p-2">
-                <Link
-                  to="/dashboard"
-                  onClick={() => setOpen(false)}
-                  className="block rounded-xl bg-neon px-4 py-3 text-center text-sm font-medium text-primary-foreground"
-                >
-                  Launch Dashboard
-                </Link>
+              <li className="mt-2 border-t border-white/10 p-2">
+                {user ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3 rounded-xl bg-white/5 px-3 py-2">
+                      <span className="grid h-9 w-9 place-items-center rounded-full bg-neon text-sm font-semibold text-primary-foreground">
+                        {initials}
+                      </span>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium">{displayName}</p>
+                        <p className="truncate text-xs text-muted-foreground">{user.email}</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={handleSignOut}
+                      className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm hover:bg-white/10"
+                    >
+                      <LogOut className="h-4 w-4" /> Sign out
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2">
+                    <Link
+                      to="/login"
+                      onClick={() => setOpen(false)}
+                      className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm hover:bg-white/10"
+                    >
+                      <User className="h-4 w-4" /> Log in
+                    </Link>
+                    <Link
+                      to="/signup"
+                      onClick={() => setOpen(false)}
+                      className="rounded-xl bg-neon px-4 py-3 text-center text-sm font-medium text-primary-foreground"
+                    >
+                      Sign up
+                    </Link>
+                  </div>
+                )}
               </li>
             </ul>
           </div>
