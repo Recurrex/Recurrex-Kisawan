@@ -7,20 +7,23 @@ const sleepData = [
   { d: "Thu", h: 7.4 }, { d: "Fri", h: 6.8 }, { d: "Sat", h: 7.9 }, { d: "Sun", h: 7.2 },
 ];
 
-export function PersonalHealth() {
+export function PersonalHealth({
+  displayName = "Farmer",
+  age,
+}: { displayName?: string; age?: number | null } = {}) {
   return (
     <div className="space-y-6">
       {/* Profile + gauges */}
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="glass rounded-2xl p-6 lg:col-span-1">
           <div className="flex items-center gap-4">
-            <div className="grid h-14 w-14 place-items-center rounded-2xl bg-neon text-primary-foreground">
+            <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-neon text-primary-foreground">
               <User className="h-7 w-7" />
             </div>
-            <div>
+            <div className="min-w-0">
               <p className="text-sm text-muted-foreground">Farmer</p>
-              <p className="font-display text-lg font-semibold">Ravi Sharma</p>
-              <p className="text-xs text-muted-foreground">Nashik, MH · 4.2 acres</p>
+              <p className="truncate font-display text-lg font-semibold">{displayName}</p>
+              <p className="text-xs text-muted-foreground">{age ? `Age ${age} · ` : ""}Personal wellness</p>
             </div>
           </div>
           <div className="mt-6 grid grid-cols-3 gap-3 text-center">
