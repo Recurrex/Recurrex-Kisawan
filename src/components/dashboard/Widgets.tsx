@@ -54,8 +54,15 @@ export function GaugeRing({
   const c = 2 * Math.PI * r;
   const offset = c - (value / 100) * c;
   return (
-    <div className="flex flex-col items-center">
-      <svg width={size} height={size} className="-rotate-90">
+    <div
+      className="relative mx-auto flex aspect-square w-full max-w-[160px] items-center justify-center"
+      style={{ maxWidth: size }}
+    >
+      <svg
+        viewBox={`0 0 ${size} ${size}`}
+        className="h-full w-full -rotate-90"
+        preserveAspectRatio="xMidYMid meet"
+      >
         <circle cx={size / 2} cy={size / 2} r={r} stroke="oklch(1 0 0 / 0.08)" strokeWidth={stroke} fill="none" />
         <circle
           cx={size / 2}
@@ -67,13 +74,13 @@ export function GaugeRing({
           strokeLinecap="round"
           strokeDasharray={c}
           strokeDashoffset={offset}
-          style={{ filter: `drop-shadow(0 0 8px ${color})`, transition: "stroke-dashoffset 0.8s ease" }}
+          style={{ filter: `drop-shadow(0 0 6px ${color})`, transition: "stroke-dashoffset 0.8s ease" }}
         />
       </svg>
-      <div className="-mt-[calc(50%+1rem)] flex h-0 flex-col items-center justify-center">
-        <p className="font-display text-2xl font-semibold">{value}%</p>
-        <p className="text-xs text-muted-foreground">{label}</p>
-        {sub && <p className="mt-1 text-[10px] text-muted-foreground">{sub}</p>}
+      <div className="absolute inset-0 flex flex-col items-center justify-center px-2 text-center">
+        <p className="font-display text-xl font-semibold leading-none sm:text-2xl">{value}%</p>
+        <p className="mt-1 text-[10px] text-muted-foreground sm:text-xs">{label}</p>
+        {sub && <p className="mt-0.5 text-[9px] text-muted-foreground sm:text-[10px]">{sub}</p>}
       </div>
     </div>
   );
