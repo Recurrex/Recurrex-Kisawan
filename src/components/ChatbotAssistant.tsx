@@ -29,12 +29,13 @@ export function ChatbotAssistant() {
     setMsgs((m) => [...m, { role: "ai", text: "Analyzing query..." }]);
 
     try {
-      // Your specific custom prompt instructions integrated exactly as requested
+      // Your custom prompt instructions integrated exactly
       const systemPrompt = 
         "Your name is strictly Kisawan AI. You must never mention Gemini, ChatGPT, Google, OpenAI, or any other AI architecture or company. If asked who created you, say you are Kisawan AI. " +
         "CRITICAL RULE: You are strictly allowed to answer queries related to farming, crop issues, soil health, fertilizers, weather planning, agriculture, and human physical health/hydration monitoring. " +
         "If the user asks about ANY off-topic subject (such as coding, history, politics, general trivia, entertainment, etc.), you must politely decline to answer, stating that you can only assist with health or crop-related farming issues.";
 
+      // Pulls it directly from Lovable environment configurations
       const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
       if (!apiKey) {
@@ -42,7 +43,7 @@ export function ChatbotAssistant() {
         setMsgs((m) => {
           const updated = [...m];
           if (updated.length > 0) {
-            updated[updated.length - 1] = { role: "ai", text: "AI core configuration missing. Please add VITE_GEMINI_API_KEY in Lovable." };
+            updated[updated.length - 1] = { role: "ai", text: "AI core configuration missing. Please add VITE_GEMINI_API_KEY in Lovable Settings." };
           }
           return updated;
         });
@@ -63,7 +64,7 @@ export function ChatbotAssistant() {
               }
             ],
             generationConfig: {
-              temperature: 0.2 // Lower temperature keeps it strictly focused on rules
+              temperature: 0.2 // Keeps the bot strictly locked onto your rules
             }
           }),
         }
