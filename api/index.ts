@@ -1,10 +1,10 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
-// Import the server handler
-import serverHandler from "../src/server";
-
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
+    // Dynamically import to avoid issues with server code
+    const { default: serverHandler } = await import("../src/server");
+
     // Build the full URL
     const protocol = req.headers["x-forwarded-proto"] || "http";
     const host = req.headers["x-forwarded-host"] || req.headers.host || "localhost";
@@ -23,8 +23,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Create a Fetch API Request
     let body: BodyInit | null = null;
-    if (req.body && (req.method !== "GET" && req.method !== "HEAD")) {
-      body = JSON.stringify(req.body);
+    if (req.body && req.method !== "GET" && req.method !== "HEAD") {
+      if (typeof req.body === "string") {
+        body = req.body;
+      } else {
+        body = JSON.stringify(req.body);
+      }
     }
 
     const request = new Request(url, {
@@ -52,6 +56,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
   } catch (error) {
     console.error("Server error:", error);
-    res.status(500).json({ error: error instanceof Error ? error.message : "Internal Server Error" });
+    const message = error instanceof Error ? error.message : "Internal Server Error";
+    res.status(500).json({ error: message });
   }
 }
