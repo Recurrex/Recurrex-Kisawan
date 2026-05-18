@@ -1,0 +1,14 @@
+{
+  "cleanUrls": true,
+  "routes": [
+    {
+      "src": "/assets/(.*)",
+      "dest": "/dist/client/assets/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/dist/client/index.html"
+    }
+  ]
+}
+
