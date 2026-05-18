@@ -2,8 +2,9 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
-    // Dynamically import to avoid issues with server code
-    const { default: serverHandler } = await import("../src/server");
+    // Dynamically import the built server handler (SSR entry point)
+    const serverModule = await import("../dist/server/index.js");
+    const serverHandler = serverModule.default;
 
     // Build the full URL
     const protocol = req.headers["x-forwarded-proto"] || "http";
