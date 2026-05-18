@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Loader2, MailCheck, RefreshCw, LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
+import { auth as fbAuth } from "@/lib/firebase";
 
 export const Route = createFileRoute("/_authenticated")({
   component: AuthenticatedLayout,
@@ -46,7 +47,9 @@ function AuthenticatedLayout() {
                 setBusy(true);
                 await reloadUser();
                 setBusy(false);
-                if (!auth_isVerified()) toast.error("Still not verified. Check your inbox.");
+                if (!fbAuth.currentUser?.emailVerified) {
+                  toast.error("Still not verified. Check your inbox.");
+                }
               }}
               className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-neon px-4 py-3 text-sm font-semibold text-primary-foreground glow-green disabled:opacity-60"
             >
@@ -79,16 +82,4 @@ function AuthenticatedLayout() {
   }
 
   return <Outlet />;
-}
-
-// helper kept inline to read latest currentUser without re-rendering tree
-function auth_isVerified() {
-  try {
-    // lazy import to avoid circular issues
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { auth } = require("@/lib/firebase");
-    return !!auth.currentUser?.emailVerified;
-  } catch {
-    return false;
-  }
 }
