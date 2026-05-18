@@ -1,18 +1,11 @@
 {
   "buildCommand": "npm run build",
-  "outputDirectory": "dist/server",
+  "outputDirectory": "dist/client",
   "framework": "other",
-  "functions": {
-    "dist/server/index.js": {
-      "runtime": "nodejs22.x",
-      "memory": 1024,
-      "maxDuration": 60
-    }
-  },
-  "routes": [
+  "rewrites": [
     {
-      "src": "/.*",
-      "dest": "dist/server/index.js"
+      "source": "/(.*)",
+      "destination": "/api"
     }
   ]
 }
