@@ -2,8 +2,9 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
 import { Loader2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
+import { confirmPasswordReset, verifyPasswordResetCode } from "firebase/auth";
 import { AuthShell, AuthField, authInputClass, authButtonClass } from "@/components/AuthShell";
-import { supabase } from "@/integrations/supabase/client";
+import { auth } from "@/lib/firebase";
 
 export const Route = createFileRoute("/reset-password")({
   component: ResetPasswordPage,
@@ -18,23 +19,26 @@ export const Route = createFileRoute("/reset-password")({
 function ResetPasswordPage() {
   const navigate = useNavigate();
   const [ready, setReady] = useState(false);
+  const [oobCode, setOobCode] = useState<string | null>(null);
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Recovery link sets a temporary session — verify it
-    supabase.auth.getSession().then(({ data }) => {
-      setReady(Boolean(data.session));
-    });
-    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") setReady(true);
-    });
-    return () => sub.subscription.unsubscribe();
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("oobCode");
+    if (!code) return;
+    verifyPasswordResetCode(auth, code)
+      .then(() => {
+        setOobCode(code);
+        setReady(true);
+      })
+      .catch(() => toast.error("Reset link is invalid or expired"));
   }, []);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    if (!oobCode) return;
     if (password.length < 8) {
       toast.error("Password must be at least 8 characters");
       return;
@@ -44,14 +48,15 @@ function ResetPasswordPage() {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.auth.updateUser({ password });
-    setLoading(false);
-    if (error) {
-      toast.error(error.message);
-      return;
+    try {
+      await confirmPasswordReset(auth, oobCode, password);
+      toast.success("Password updated. Please sign in.");
+      navigate({ to: "/login" });
+    } catch (e) {
+      toast.error((e as { message?: string })?.message ?? "Failed to update password");
+    } finally {
+      setLoading(false);
     }
-    toast.success("Password updated. You're signed in.");
-    navigate({ to: "/dashboard" });
   }
 
   return (

@@ -3,7 +3,7 @@ import { useState, type FormEvent } from "react";
 import { Loader2, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { AuthShell, AuthField, authInputClass, authButtonClass } from "@/components/AuthShell";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/forgot-password")({
   component: ForgotPasswordPage,
@@ -16,6 +16,7 @@ export const Route = createFileRoute("/forgot-password")({
 });
 
 function ForgotPasswordPage() {
+  const { resetPassword } = useAuth();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -24,12 +25,10 @@ function ForgotPasswordPage() {
     e.preventDefault();
     if (!email) return;
     setLoading(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
+    const { error } = await resetPassword(email.trim());
     setLoading(false);
     if (error) {
-      toast.error(error.message);
+      toast.error(error);
       return;
     }
     setSent(true);
