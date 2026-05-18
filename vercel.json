@@ -1,0 +1,22 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist/server",
+  "framework": "other",
+  "functions": {
+    "dist/server/index.js": {
+      "runtime": "nodejs22.x",
+      "memory": 1024,
+      "maxDuration": 60
+    }
+  },
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "dist/server/index.js"
+    }
+  ],
+  "env": {
+    "SUPABASE_URL": "@SUPABASE_URL",
+    "SUPABASE_ANON_KEY": "@SUPABASE_ANON_KEY"
+  }
+}
