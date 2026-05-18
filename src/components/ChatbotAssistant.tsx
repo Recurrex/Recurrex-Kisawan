@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Bot, Send, Sparkles, X } from "lucide-react";
+import { createServerFn } from "@tanstack/react-start";
 
 type Msg = { role: "user" | "ai"; text: string };
 
@@ -7,18 +8,39 @@ const SEEDS: string[] = [
   "Namaste! I'm Kisawan AI. Ask me about crop disease, hydration tips, weather, or fertilizer guidance.",
 ];
 
-function aiReply(input: string): string {
-  const q = input.toLowerCase();
-  if (q.includes("water") || q.includes("hydrat"))
-    return "Aim for ~3.5L water today — heat index is high. I'll ping you every 90 min.";
-  if (q.includes("disease") || q.includes("leaf"))
-    return "Upload a leaf photo in Crop Health → Disease Scan. I'll detect blight, rust, or mildew in seconds.";
-  if (q.includes("weather") || q.includes("rain"))
-    return "Light showers expected Thursday. Delay spraying till Friday morning for best results.";
-  if (q.includes("fertil"))
-    return "Soil N is low. Recommend 12kg/acre urea split-dose this week, then DAP in 10 days.";
-  return "Got it. I'll analyze your farm telemetry and surface insights on the dashboard shortly.";
-}
+// This server function executes securely on Vercel's backend, hiding your Gemini API Key
+const askGeminiServer = createServerFn({ method: "POST" })
+  .validator((message: string) => message)
+  .handler(async ({ data: message }) => {
+    const apiKey = process.env.GEMINI_API_KEY;
+
+    if (!apiKey) {
+      console.error("Missing GEMINI_API_KEY environment variable on Vercel.");
+      return "Namaste! My AI system is currently undergoing maintenance. Please try again shortly.";
+    }
+
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: message }] }],
+          }),
+        }
+      );
+
+      const data = await response.json();
+      return (
+        data.candidates?.[0]?.content?.parts?.[0]?.text ||
+        "I analyzed the details but couldn't generate a clear insight right now. Please try rephrasing."
+      );
+    } catch (error) {
+      console.error("Gemini API call failed:", error);
+      return "I encountered a minor network glitch while trying to fetch agricultural insights. Please try again.";
+    }
+  });
 
 export function ChatbotAssistant() {
   const [open, setOpen] = useState(false);
@@ -30,12 +52,36 @@ export function ChatbotAssistant() {
     scrollRef.current?.scrollTo({ top: 9999, behavior: "smooth" });
   }, [msgs, open]);
 
-  function send() {
+  async function send() {
     const text = input.trim();
     if (!text) return;
+
+    // 1. Instantly show the user's typed message in the chat window
     setMsgs((m) => [...m, { role: "user", text }]);
     setInput("");
-    setTimeout(() => setMsgs((m) => [...m, { role: "ai", text: aiReply(text) }]), 500);
+
+    // 2. Temporarily show a loading message so the user knows Kisawan AI is thinking
+    setMsgs((m) => [...m, { role: "ai", text: "Analyzing farm query..." }]);
+
+    try {
+      // 3. Fire the prompt up to the secure backend server function
+      const replyFromGemini = await askGeminiServer({ data: text });
+
+      // 4. Swap out the "Analyzing..." message with Gemini's actual response
+      setMsgs((m) => {
+        const updated = [...m];
+        if (updated.length > 0) {
+          updated[updated.length - 1] = { role: "ai", text: replyFromGemini };
+        }
+        return updated;
+      });
+    } catch (error) {
+      console.error("Error updating chat UI from server function:", error);
+      setMsgs((m) => [
+        ...m,
+        { role: "ai", text: "Something went wrong on our end. Please check your internet connection." },
+      ]);
+    }
   }
 
   return (
@@ -111,3 +157,4 @@ export function ChatbotAssistant() {
     </>
   );
 }
+              
