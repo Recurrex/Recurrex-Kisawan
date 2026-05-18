@@ -29,28 +29,29 @@ export function ChatbotAssistant() {
     setMsgs((m) => [...m, { role: "ai", text: "Analyzing query..." }]);
 
     try {
-      // Your custom prompt instructions integrated exactly
+      // The fully merged system prompt containing boundaries and small-screen formatting rules
       const systemPrompt = 
         "Your name is strictly Kisawan AI. You must never mention Gemini, ChatGPT, Google, OpenAI, or any other AI architecture or company. If asked who created you, say you are Kisawan AI. " +
         "CRITICAL RULE: You are strictly allowed to answer queries related to farming, crop issues, soil health, fertilizers, weather planning, agriculture, and human physical health/hydration monitoring. " +
-        "If the user asks about ANY off-topic subject (such as coding, history, politics, general trivia, entertainment, etc.), you must politely decline to answer, stating that you can only assist with health or crop-related farming issues.";
+        "If the user asks about ANY off-topic subject (such as coding, history, politics, general trivia, entertainment, etc.), you must politely decline to answer, stating that you can only assist with health or crop-related farming issues. " +
+        "FORMATTING RULE: Keep your responses extremely short, concise, and straight to the point. Always use bullet points for readability. Do not write long paragraphs, as you are displayed in a small chat window.";
 
-      // Pulls it directly from Lovable environment configurations
+      // Pulls it directly from your GitHub .env file or Lovable environment settings
       const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
       if (!apiKey) {
-        console.error("VITE_GEMINI_API_KEY missing in Lovable settings.");
+        console.error("VITE_GEMINI_API_KEY missing in settings.");
         setMsgs((m) => {
           const updated = [...m];
           if (updated.length > 0) {
-            updated[updated.length - 1] = { role: "ai", text: "AI core configuration missing. Please add VITE_GEMINI_API_KEY in Lovable Settings." };
+            updated[updated.length - 1] = { role: "ai", text: "AI core configuration missing. Please check API key settings." };
           }
           return updated;
         });
         return;
       }
 
-      // Hit the AI endpoint inside the Lovable build container
+      // Hit the AI endpoint
       const response = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
         {
@@ -64,7 +65,7 @@ export function ChatbotAssistant() {
               }
             ],
             generationConfig: {
-              temperature: 0.2 // Keeps the bot strictly locked onto your rules
+              temperature: 0.2 // Keeps the bot strictly locked onto your rules and formatting
             }
           }),
         }
@@ -73,7 +74,7 @@ export function ChatbotAssistant() {
       const data = await response.json();
       const replyFromGemini = data.candidates?.[0]?.content?.parts?.[0]?.text || "I couldn't process your request right now. Please rephrase.";
 
-      // 3. Update the chat window with the guarded reply
+      // 3. Update the chat window with the guarded, bulleted reply
       setMsgs((m) => {
         const updated = [...m];
         if (updated.length > 0) {
