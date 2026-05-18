@@ -22,12 +22,25 @@ export const Route = createFileRoute("/login")({
 });
 
 function LoginPage() {
-  const { signIn, user } = useAuth();
+  const { signIn, signInWithGoogle, user } = useAuth();
   const navigate = useNavigate();
   const search = useSearch({ from: "/login" });
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(true);
+  const [googleLoading, setGoogleLoading] = useState(false);
+
+  async function handleGoogle() {
+    setGoogleLoading(true);
+    const { error } = await signInWithGoogle();
+    setGoogleLoading(false);
+    if (error) {
+      toast.error(error);
+      return;
+    }
+    toast.success("Welcome to Kisawan");
+    navigate({ to: search.redirect ?? "/dashboard" });
+  }
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
 
